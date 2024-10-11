@@ -5,6 +5,8 @@ import { IconStar } from './icons/IconStar';
 import useMainStore from '@store/useMainStore';
 import { IconClose } from './icons/IconClose';
 import { useEffect, useState } from 'react';
+import fetchPlaces from '../api/fetchPlaces'
+import { useQuery } from '@tanstack/react-query';
 
 export const LeftWrapper = () => {
 	return (
@@ -14,65 +16,75 @@ export const LeftWrapper = () => {
 	);
 };
 
-export const LeftMenus = () => {
-	return (
-        <div className="left_menus">
-            <div className="snb_wrap">
-                <ul>
-					<li className='snb_list'></li>
-                </ul>
-            </div>
-        </div>
-    );
-}
-
 export const SearchForm = () => {
-	const {searchValue, setSearchValue ,setSearchKeyword, searchList, searchItemView, setSearchItemView, setSearchItemViewText} = useMainStore()
-	const handleListOpen = (item, idx) => {
-		setSearchItemView(true);
-		setSearchItemViewText(
-			{
-				active: 0,
-				place_name: item.place_name,
-				category_group_name: item.category_group_name
-			}
-		)
-	}
+	const {
+        searchList,
+        setSearchList,
+        searchValue,
+        setSearchValue,
+    } = useMainStore()
+    const { data, refetch } = useQuery({
+        queryKey: ['searchPlaces', searchValue],
+        queryFn: () => fetchPlaces(searchValue),
+        enabled: false, // 검색어가 있을 때만 요청 실행
+    });
+    const handleSearch = () => {
+        if (searchValue) {
+            refetch().then((response) => {
+                if (response && response.data && response.data.length > 0) {
+                    setSearchList(response.data);
+                } else {
+                    console.error('No search results found');
+                }
+            }).catch((error) => {
+                console.error('Error fetching places:', error);
+            });
+        } else if(!searchValue.replace(/^\s+|\s+$/g, '')) {
+            alert('키워드를 입력해주세요!');
+            return false;
+        }
+    };
+    const handleListOpen = () => {}
+
 	return (
 		<div className='search_form'>
 			<div className="top">
 				<CustomInput value={searchValue} onChange={(e) => {setSearchValue(e.target.value)}} />
-				<button type="button" className='btn_search' onClick={() => {setSearchKeyword(searchValue)}}>검색</button>
+				<button type="button" className='btn_search' onClick={handleSearch}>검색</button>
 			</div>
 			<div className="content">
 				<ul className='address_wrap'>
-					{
-						searchList.map((item, idx) => {
-							return (
-								<li key={idx}>
-									<button type='button' onClick={() => handleListOpen(item, idx)}>
-										<div className='title_wrap'>
-											<Link to={item.place_url} target="_blank"><b>{item.place_name}</b><span>{item.category_group_name}</span></Link>
-										</div>
-										<div className="address_list">
-											<p>도로명 : {item.address_name}</p>
-											<p>지번 : {item.road_address_name}</p>
-										</div>
-									</button>
-								</li>
-							)
-
-						})
-					}
+                    {
+                        searchList &&
+                        searchList.map((item) => {
+                            return (
+                                <li>
+                                    <button type='button' onClick={() => handleListOpen()}>
+                                        <div className='title_wrap'>
+                                            <Link to={item.place_url} target="_blank">
+                                                <b>{item.place_name}</b><span>{item.category_group_name}</span>
+                                            </Link>
+                                        </div>
+                                        <div className="address_list">
+                                            <p>도로명 : {item.address_name}</p>
+                                            <p>지번 : {item.road_address_name}</p>
+                                        </div>
+                                    </button>
+                                </li>
+                            )
+                        })
+                    } 
 				</ul>
-				{
-					searchItemView &&
-					<SearchItemView />
-				}
+                {
+                    // searchItemView &&
+                    // <SearchItemView />
+                }
 			</div>
 		</div>
 	)
 }
+
+
 
 export const SearchItemView = () => {
 	const [active, setActive] = useState(0);
@@ -130,3 +142,5 @@ export const SearchItemView = () => {
 		</div>
 	)
 }
+
+

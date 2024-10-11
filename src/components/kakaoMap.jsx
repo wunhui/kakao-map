@@ -3,50 +3,43 @@ import useMainStore from "../store/useMainStore";
 import { useEffect, useState } from "react";
 
 const KakaoMap = () => {
-    const [info, setInfo] = useState()
-    const [markers, setMarkers] = useState([])
-    const [level, setLevel] = useState(3)
-    const [map, setMap] = useState()
-    const {searchKeyword, searchList,  setSearchList, center, setCenter} = useMainStore()
-
+    /* eslint-disable */
+    const {
+      searchList,
+      map,
+      setMap,
+      markers,
+      setMarkers,
+      center,
+      setCenter,
+      level,
+      setLevel
+    } = useMainStore()
     useEffect(() => {
-        if (!map || !searchKeyword) return; // searchKeyword에 대한 확인 추가
-        // kakao 객체가 정의되어 있는지 확인
-        if (typeof kakao === "undefined") {
-          console.error("kakao 객체가 정의되지 않았습니다.");
-          return;
-        }
-      /* eslint-disable */
-        const ps = new kakao.maps.services.Places();
-      
-        ps.keywordSearch(searchKeyword, (data, status, _pagination) => {
-          if (status === kakao.maps.services.Status.OK) {
+        if (searchList && searchList.length > 0) {
+            console.log(searchList)
             const bounds = new kakao.maps.LatLngBounds();
-            let markers = [];
-      
-            for (let i = 0; i < data.length; i++) {
-              markers.push({
-                position: {
-                  lat: data[i].y,
-                  lng: data[i].x,
-                },
-                content: data[i].place_name,
-              });
-              bounds.extend(new kakao.maps.LatLng(data[i].y, data[i].x));
-            }
-            setCenter({
-                lat: Number(data[0].y),
-                lng: Number(data[0].x)
-            })
-            setMarkers(markers);
-            setSearchList(data);
-            setLevel(3)
-            map.setBounds(bounds);
-          } else {
-            console.error("검색 실패:", status); // 검색 실패 시 오류 로그
-          }
-        });
-      }, [map, searchKeyword]);
+            const markers = [];
+            // 검색 결과의 각 장소에 대해 마커 생성
+            searchList.forEach((item) => {
+                const boundPosition = new kakao.maps.LatLng(searchList[0].y, searchList[0].x); // 장소 좌표 (위도, 경도)
+                const markerPosition = new kakao.maps.LatLng(item.y, item.x); // 장소 좌표 (위도, 경도)
+                const marker = new kakao.maps.Marker({
+                    position: markerPosition,
+                });
+                setCenter({
+                    lat: searchList[0].y,
+                    lng: searchList[0].x,
+                })
+                setLevel(2);
+                marker.setMap(map); // 마커를 지도에 표시
+                markers.push(marker); // 마커 배열에 추가
+                bounds.extend(boundPosition); // 각 마커 좌표로 경계 확장
+            });
+            setMarkers(markers); // Zustand 상태에 마커 배열 저장
+            map.setBounds(bounds); // 검색된 결과의 범위로 지도 중심 및 범위 설정
+        }
+    }, [searchList])
     return (
         <div className="kakao_map_wrapper">
             <Map // 로드뷰를 표시할 Container
@@ -58,17 +51,6 @@ const KakaoMap = () => {
                 onCreate={setMap}
                 className="kakao_map"
             >
-            {markers.map((marker) => (
-                <MapMarker
-                key={`marker-${marker.content}-${marker.position.lat},${marker.position.lng}`}
-                position={marker.position}
-                onClick={() => setInfo(marker)}
-                >
-                {info &&info.content === marker.content && (
-                    <div style={{color:"#000"}}>{marker.content}</div>
-                )}
-                </MapMarker>
-            ))}
                 <MapTypeControl position={"TOPRIGHT"} />
                 <ZoomControl position={"RIGHT"} />
             </Map>
@@ -77,23 +59,3 @@ const KakaoMap = () => {
 }
 
 export default KakaoMap
-
-
-export const CustomOverlayMapItem = () => {
-    return (
-        <CustomOverlayMap // 커스텀 오버레이를 표시할 Container
-            // 커스텀 오버레이가 표시될 위치입니다
-            position={{
-            lat: 33.450701,
-            lng: 126.570667,
-            }}
-        >
-            {/* 커스텀 오버레이에 표시할 내용입니다 */}
-            <div className="label" style={{color: "#000"}}>
-                <span className="left"></span>
-                <span className="center">카카오!</span>
-                <span className="right"></span>
-            </div>
-      </CustomOverlayMap>
-    )
-}
