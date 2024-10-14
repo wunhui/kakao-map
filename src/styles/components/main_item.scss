@@ -66,6 +66,11 @@
                 }
             }
         }
+        .fetching_text{ 
+            @include fontValue($size: 16, $weight: bold);
+            @include media(padding-top, 60);
+            text-align: center;
+        }
     }
 }
 

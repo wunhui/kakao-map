@@ -8,6 +8,13 @@ const useMainStore = create((set) => ({
     searchValue: '',
     searchKeyword: '',
     searchList: [],
+    searchQuery: {
+        page: 1,
+        size: 15,
+        x: '',
+        y: ''
+    },
+    coordinateData: [],
     center: {
         lat: 37.56534539636417, 
         lng: 126.97719821079865
@@ -18,7 +25,9 @@ const useMainStore = create((set) => ({
     setSearchValue: (value) => set({ searchValue: value }),
     setSearchKeyword: (value) => set({ searchKeyword: value }),
     setSearchList: (value) => set({ searchList: value }),
+    setSearchQuery: (value) => set({ searchQuery: value }),
     setCenter: (value) => set({ center: value }),
+    setCoordinateData: (value) => set({ coordinateData: value })
 }))
 
 export default useMainStore;

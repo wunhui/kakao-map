@@ -5,7 +5,7 @@ import { IconStar } from './icons/IconStar';
 import useMainStore from '@store/useMainStore';
 import { IconClose } from './icons/IconClose';
 import { useEffect, useState } from 'react';
-import fetchPlaces from '../api/fetchPlaces'
+import { fetchKeyword } from '../api/fetchPlaces'
 import { useQuery } from '@tanstack/react-query';
 
 export const LeftWrapper = () => {
@@ -18,20 +18,26 @@ export const LeftWrapper = () => {
 
 export const SearchForm = () => {
 	const {
+		center,
         searchList,
         setSearchList,
         searchValue,
         setSearchValue,
+		searchQuery,
+		setSearchQuery
     } = useMainStore()
-    const { data, refetch } = useQuery({
-        queryKey: ['searchPlaces', searchValue],
-        queryFn: () => fetchPlaces(searchValue),
-        enabled: false, // 검색어가 있을 때만 요청 실행
+    const { data, refetch, isFetching } = useQuery({
+        queryKey: ['fetchKeyword', searchValue],
+		queryFn: () => fetchKeyword({
+			term: searchValue
+		  }),
+        enabled: false, 
     });
+
     const handleSearch = () => {
-        if (searchValue) {
-            refetch().then((response) => {
-                if (response && response.data && response.data.length > 0) {
+		if (searchValue) {
+			refetch().then((response) => {
+				if (response && response.data && response.data.length > 0) {
                     setSearchList(response.data);
                 } else {
                     console.error('No search results found');
@@ -53,28 +59,35 @@ export const SearchForm = () => {
 				<button type="button" className='btn_search' onClick={handleSearch}>검색</button>
 			</div>
 			<div className="content">
-				<ul className='address_wrap'>
-                    {
-                        searchList &&
-                        searchList.map((item) => {
-                            return (
-                                <li>
-                                    <button type='button' onClick={() => handleListOpen()}>
-                                        <div className='title_wrap'>
-                                            <Link to={item.place_url} target="_blank">
-                                                <b>{item.place_name}</b><span>{item.category_group_name}</span>
-                                            </Link>
-                                        </div>
-                                        <div className="address_list">
-                                            <p>도로명 : {item.address_name}</p>
-                                            <p>지번 : {item.road_address_name}</p>
-                                        </div>
-                                    </button>
-                                </li>
-                            )
-                        })
-                    } 
-				</ul>
+			{searchList && searchList.length > 0 ? 
+				(
+					<ul className='address_wrap'>
+						{
+							searchList &&
+							searchList.map((item, idx) => {
+								return (
+									<li key={idx}>
+										<button type='button' onClick={() => handleListOpen()}>
+											<div className='title_wrap'>
+												<Link to={item.place_url} target="_blank">
+													<b>{item.place_name}</b><span>{item.category_group_name}</span>
+												</Link>
+											</div>
+											<div className="address_list">
+												<p>도로명 : {item.address_name}</p>
+												<p>지번 : {item.road_address_name}</p>
+											</div>
+										</button>
+									</li>
+								)
+							})
+						} 
+					</ul> 
+				) :
+				(
+					!isFetching && <div className='fetching_text'>검색 결과가 없습니다.</div> // 검색 결과가 없을 때 메시지 표시
+				)
+			}
                 {
                     // searchItemView &&
                     // <SearchItemView />
@@ -88,7 +101,7 @@ export const SearchForm = () => {
 
 export const SearchItemView = () => {
 	const [active, setActive] = useState(0);
-	const {searchItemViewText, setSearchItemView, setSearchItemViewText, saveMapList, setSaveMapList} = useMainStore()
+	const { searchItemViewText, setSearchItemView, setSearchItemViewText } = useMainStore()
 	const handleClickSave = () => {
 		setActive(active === 0 ? 1 : 0); 
 		setSearchItemViewText(

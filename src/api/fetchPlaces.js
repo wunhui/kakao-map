@@ -1,11 +1,11 @@
 import axios from 'axios';
 
-const fetchPlaces = async (term) => {
+export const fetchKeyword = async ({term}) => {
     const response = await axios.get(
       `https://dapi.kakao.com/v2/local/search/keyword.json`,
       {
         headers: {
-          Authorization: `KakaoAK d7bc1cd4f37041f376771eb9024c1c51`,
+          Authorization: `KakaoAK ${process.env.REACT_APP_KAKAOMAP_KEY}`,
         },
         params: {
           query: term,
@@ -15,4 +15,21 @@ const fetchPlaces = async (term) => {
     return response.data.documents;
   };
 
-  export default fetchPlaces;
+
+  // 2024.10.14 
+  export const fetchCoordinate = async ({x,y}) => {
+    console.log('Fetching coordinates with:', { x, y });
+    const response = await axios.get(
+      'https://dapi.kakao.com/v2/local/geo/coord2address.json',
+      {
+        headers: {
+          Authorization: `KakaoAK ${process.env.REACT_APP_KAKAOMAP_KEY}`,
+        },
+        params: {
+          x: x,
+          y: y,
+        },
+      }
+    );
+    return response.data.documents;
+  }
