@@ -19,7 +19,7 @@ const KakaoMap = () => {
       coordinateData,
       setCoordinateData
     } = useMainStore()
-    
+    // ss
     // 2024.10.14 시작 _ data에 담아두고 싶음
     const { data } = useQuery({
         queryKey: ['fetchCoordinate'],
