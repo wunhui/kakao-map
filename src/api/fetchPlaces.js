@@ -1,19 +1,23 @@
 import axios from 'axios';
 
-export const fetchKeyword = async ({term}) => {
-    const response = await axios.get(
-      `https://dapi.kakao.com/v2/local/search/keyword.json`,
-      {
-        headers: {
-          Authorization: `KakaoAK ${process.env.REACT_APP_KAKAOMAP_KEY}`,
+export const fetchKeyword = async ({term, x, y}) => {
+  const response = await axios.get(
+    `https://dapi.kakao.com/v2/local/search/keyword.json`,
+    {
+      headers: {
+        Authorization: `KakaoAK ${process.env.REACT_APP_KAKAOMAP_KEY}`,
+      },
+      params: {
+        query: {
+          term,
+          x,
+          y
         },
-        params: {
-          query: term,
-        },
-      }
-    );
-    return response.data.documents;
-  };
+      },
+    }
+  );
+  return response.data.documents;
+};
 
 
   // 2024.10.14 
