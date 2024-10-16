@@ -18,12 +18,13 @@ const useMainStore = create((set) => ({
     },
     keywordCoordinates: null,
     listViewPopup: false,
-    listViewData: false,
+    listViewData: {},
     // 2024.10.16 현재 위치 설정
     currentLocation: {
         lat: null,
         lng: null
     },
+    saveListData: [],
     setMap: (value) => set({ map: value }),
     setMarkers: (value) => set({ markers: value }),
     setLevel: (value) => set({ level: value}),
@@ -36,7 +37,8 @@ const useMainStore = create((set) => ({
     setListViewPopup: (value) => set({ listViewPopup: value }),
     setListViewData: (value) => set({ listViewData: value }),
     // 2024.10.16 현재 위치 설정
-    setCurrentLocation: (value) => set({ currentLocation: value })
+    setCurrentLocation: (value) => set({ currentLocation: value }),
+    setSaveListData: (value) => set({ saveListData: value })
 }))
 
 export default useMainStore;

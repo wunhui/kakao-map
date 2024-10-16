@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
-
+// 2024.10.16 내 위치 가져오기 훅 작성
 export const useGeolocation = () => {
+  // api 기능 완료시 추후 수정 예정
   const [location, setLocation] = useState({
     latitude: null,
     longitude: null,
@@ -12,7 +13,7 @@ export const useGeolocation = () => {
     if (!navigator.geolocation) {
       setLocation((prevState) => ({
         ...prevState,
-        error: "Geolocation is not supported by your browser.",
+        error: "위치 가져오기 실패",
       }));
       return;
     }
@@ -43,7 +44,6 @@ export const useGeolocation = () => {
     const watcher = navigator.geolocation.getCurrentPosition(success, error, options);
 
     return () => {
-      // Cleanup when component is unmounted
       if (watcher) {
         navigator.geolocation.clearWatch(watcher);
       }

@@ -1,9 +1,9 @@
 .kakao_map_wrapper {
     @include mediaCalc(width, 100%, '-', 350);
     height: 100%;
-
     @include tiny {
         width: 100%;
+        @include mediaCalc(height, 100vh, '-', 50);
     }
     .kakao_map {
         width: 100%;
@@ -34,7 +34,7 @@
     }
     .location_btn {
         position: absolute;
-        z-index: 10;
+        z-index: 2;
         top: 232px;
         right: 2px;
         width: 34px;
@@ -43,5 +43,9 @@
         padding: 4px;
         border: 1px solid rgb(226, 226, 226);;
         border-radius: 3px;
+        @include tiny {
+            top: 282px;
+            right: 2px;
+        }
     }
 }

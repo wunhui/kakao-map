@@ -133,15 +133,25 @@ const KakaoMap = () => {
     }, [keywordData, coordinates, map]);
 
 
-    // 2024.10.16 내 위치 가져오기
+    // 2024.10.16 내 위치 가져오기 _ 가져오기까지 완료 추후 수정 예정
     const { latitude, longitude, accuracy, error } = useGeolocation();
     const [ location, setLocation ] = useState(false)
+
+    const handleLocation = () => {
+        setLocation(true)
+        if(location) {
+            setCenter({
+                lat: latitude,
+                lng: longitude,
+            })
+        }
+    }
     return (
         <div className="kakao_map_wrapper">
             <Map // 로드뷰를 표시할 Container
                 center={{
-                    lat: latitude ? latitude : center.lat,
-                    lng: longitude ? longitude : center.lng,
+                    lat: center.lat,
+                    lng: center.lng,
                 }}
                 level={level}
                 onCreate={setMap}
@@ -150,6 +160,7 @@ const KakaoMap = () => {
             >
                 <MapTypeControl position={"TOPRIGHT"} />
                 <ZoomControl position={"RIGHT"} />
+                {/* 2024.10.16 내 위치 가져오기 _ 가져오기까지 완료 추후 수정 예정 */}
                 {
                     location &&
                         <Circle
@@ -157,7 +168,7 @@ const KakaoMap = () => {
                             lat: latitude,
                             lng: longitude,
                             }}
-                            radius={7}
+                            radius={5}
                             strokeWeight={15} // 선의 두께입니다
                             strokeColor={"#ff3e3f"} // 선의 색깔입니다
                             strokeOpacity={.2} // 선의 불투명도 입니다 1에서 0 사이의 값이며 0에 가까울수록 투명합니다
@@ -166,7 +177,7 @@ const KakaoMap = () => {
                             fillOpacity={1} // 채우기 불투명도 입니다
                         />
                 }
-                <button className="location_btn" onClick={() => setLocation(true)}>위치</button>
+                <button className="location_btn" onClick={handleLocation}>위치</button>
             </Map>
         </div>
     )
