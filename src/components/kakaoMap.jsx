@@ -1,9 +1,10 @@
-import { Map, MapMarker, MapTypeControl, ZoomControl, CustomOverlayMap } from "react-kakao-maps-sdk";
+import { Map, MapTypeControl, ZoomControl, Circle } from "react-kakao-maps-sdk";
 import useMainStore from "../store/useMainStore";
 import { fetchCoordinate, fetchKeyword } from '../api/fetchPlaces'
 import { useRef, useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
+import {useGeolocation} from "../hook/useGeoLocation";
 
 
 const KakaoMap = () => {
@@ -20,10 +21,12 @@ const KakaoMap = () => {
       coordinates,        // 좌표 검색 store
       setCoordinates,
       keywordCoordinates, // 키워드 검색 store
-      setKeywordCoordinates
+      setKeywordCoordinates,
+      // 2024.10.16 현재 위치 설정 추후 사용 예정
+      currentLocation,
+      setCurrentLocation
     } = useMainStore()
 
-    // 2024.10.15 시작 _ data에 담기 완료
     // 좌표 데이터 api query
     const { data, refetch } = useQuery({
         queryKey: ['coordinateAddress', coordinates],
@@ -31,7 +34,6 @@ const KakaoMap = () => {
         enabled: coordinates.x !== null && coordinates.y !== null, 
     });
 
-    // 2024.10.15 시작 _ 키워드 통해 지도 클릭 시 place_name 나오게 변경
     // 키워드 검색 데이터 api query
     const { data: keywordData, refetch: keywordRefetch } = useQuery({
         queryKey: ['fetchKeyword', keywordCoordinates, coordinates.x, coordinates.y],
@@ -42,7 +44,6 @@ const KakaoMap = () => {
         }),
         enabled: keywordCoordinates !== null && coordinates.x !== null && coordinates.y !== null,
     });
-    // 2024.10.15 끝 
     // 검색결과 마커 생성
     useEffect(() => {
         if (searchList && searchList.length > 0) {
@@ -70,7 +71,6 @@ const KakaoMap = () => {
     }, [searchList])
     
     
-    // 2024.10.15 시작 좌표 키워드로 장소명 받아오기
     // 클릭 시 useQuery로 위치값 전송 후 data 사용
     // 클릭 시 새로운 좌표로 customOverlay 업데이트
     const customOverlayRef = useRef(null);
@@ -105,9 +105,6 @@ const KakaoMap = () => {
             }
         }
     }, [data, keywordRefetch]);
-    // 2024.10.15 끝
-
-    // 2024.10.15 시작 좌표갑에 해당하는 오버레이 열고 정보 넣기
     useEffect(() => {
         if (keywordData && keywordData.length > 0) {
             const x = coordinates.x;
@@ -135,13 +132,16 @@ const KakaoMap = () => {
 
     }, [keywordData, coordinates, map]);
 
-        // 2024.10.15 끝
+
+    // 2024.10.16 내 위치 가져오기
+    const { latitude, longitude, accuracy, error } = useGeolocation();
+    const [ location, setLocation ] = useState(false)
     return (
         <div className="kakao_map_wrapper">
             <Map // 로드뷰를 표시할 Container
                 center={{
-                    lat: center.lat,
-                    lng: center.lng,
+                    lat: latitude ? latitude : center.lat,
+                    lng: longitude ? longitude : center.lng,
                 }}
                 level={level}
                 onCreate={setMap}
@@ -150,6 +150,23 @@ const KakaoMap = () => {
             >
                 <MapTypeControl position={"TOPRIGHT"} />
                 <ZoomControl position={"RIGHT"} />
+                {
+                    location &&
+                        <Circle
+                            center={{
+                            lat: latitude,
+                            lng: longitude,
+                            }}
+                            radius={7}
+                            strokeWeight={15} // 선의 두께입니다
+                            strokeColor={"#ff3e3f"} // 선의 색깔입니다
+                            strokeOpacity={.2} // 선의 불투명도 입니다 1에서 0 사이의 값이며 0에 가까울수록 투명합니다
+                            strokeStyle={"solid"} // 선의 스타일 입니다
+                            fillColor={"#ff3e3f"} // 채우기 색깔입니다
+                            fillOpacity={1} // 채우기 불투명도 입니다
+                        />
+                }
+                <button className="location_btn" onClick={() => setLocation(true)}>위치</button>
             </Map>
         </div>
     )

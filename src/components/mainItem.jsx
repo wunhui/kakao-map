@@ -46,8 +46,6 @@ export const SearchForm = () => {
     useEffect(() => {
         if (data) {
             setSearchList(data); 
-        } else {
-            setSearchList([]); 
         }
     }, [data, setSearchList]);
 

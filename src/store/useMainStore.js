@@ -12,7 +12,6 @@ const useMainStore = create((set) => ({
         lat: 37.56534539636417, 
         lng: 126.97719821079865
     },
-    // 2024.10.15 좌표 키워드 스토어 설정
     coordinates: {
         x: null,
         y: null
@@ -20,6 +19,11 @@ const useMainStore = create((set) => ({
     keywordCoordinates: null,
     listViewPopup: false,
     listViewData: false,
+    // 2024.10.16 현재 위치 설정
+    currentLocation: {
+        lat: null,
+        lng: null
+    },
     setMap: (value) => set({ map: value }),
     setMarkers: (value) => set({ markers: value }),
     setLevel: (value) => set({ level: value}),
@@ -27,11 +31,12 @@ const useMainStore = create((set) => ({
     setSearchKeyword: (value) => set({ searchKeyword: value }),
     setSearchList: (value) => set({ searchList: value }),
     setCenter: (value) => set({ center: value }),
-    // 2024.10.15 좌표 키워드 스토어 설정
     setCoordinates: (value) => set({ coordinates: value }),
     setKeywordCoordinates: (value) => set({ keywordCoordinates: value }),
     setListViewPopup: (value) => set({ listViewPopup: value }),
-    setListViewData: (value) => set({ listViewData: value })
+    setListViewData: (value) => set({ listViewData: value }),
+    // 2024.10.16 현재 위치 설정
+    setCurrentLocation: (value) => set({ currentLocation: value })
 }))
 
 export default useMainStore;
