@@ -22,7 +22,7 @@ const KakaoMap = () => {
       setCoordinates,
       keywordCoordinates, // 키워드 검색 store
       setKeywordCoordinates,
-      // 2024.10.16 현재 위치 설정 추후 사용 예정
+      // 현재 위치 설정 추후 사용 예정
       currentLocation,
       setCurrentLocation
     } = useMainStore()
@@ -42,7 +42,7 @@ const KakaoMap = () => {
             x: coordinates.x,
             y: coordinates.y,
         }),
-        enabled: keywordCoordinates !== null && coordinates.x !== null && coordinates.y !== null,
+        enabled: !!keywordCoordinates && !!coordinates.x && !!coordinates.y,
     });
     // 검색결과 마커 생성
     useEffect(() => {
@@ -85,26 +85,20 @@ const KakaoMap = () => {
             customOverlayRef.current = null; // 오버레이 변수를 null로 초기화
         }
     };
-
-
+    
+    // 2024.10.17 리패치 삭제
     useEffect(() => {
-        if(coordinates.x !== null && coordinates.y !== null) {
-            refetch();
-        }
-    }, [coordinates, refetch]);
-
-
-    useEffect(() => {
-        if(data) {
+        if (data) {
             if (data.length > 0) {
-                const addressName = data[0]?.address?.address_name; 
-                if (addressName) {
-                    setKeywordCoordinates(addressName);
-                    keywordRefetch();
+                const addressName = data[0]?.address?.address_name;
+    
+                if (addressName) {  
+                    setKeywordCoordinates(addressName);  
                 }
             }
         }
-    }, [data, keywordRefetch]);
+    }, [data]);
+
     useEffect(() => {
         if (keywordData && keywordData.length > 0) {
             const x = coordinates.x;
@@ -133,11 +127,20 @@ const KakaoMap = () => {
     }, [keywordData, coordinates, map]);
 
 
-    // 2024.10.16 내 위치 가져오기 _ 가져오기까지 완료 추후 수정 예정
+    // 내 위치 가져오기 추후 수정 예정
     const { latitude, longitude, accuracy, error } = useGeolocation();
     const [ location, setLocation ] = useState(false)
 
     const handleLocation = () => {
+        setLocation(true)
+        if(location) {
+            setCenter({
+                lat: latitude,
+                lng: longitude,
+            })
+        }
+    }
+    const handleTouchLocation = () => {
         setLocation(true)
         if(location) {
             setCenter({
@@ -160,7 +163,7 @@ const KakaoMap = () => {
             >
                 <MapTypeControl position={"TOPRIGHT"} />
                 <ZoomControl position={"RIGHT"} />
-                {/* 2024.10.16 내 위치 가져오기 _ 가져오기까지 완료 추후 수정 예정 */}
+                {/* 내 위치 가져오기 추후 수정 예정 */}
                 {
                     location &&
                         <Circle
@@ -177,7 +180,7 @@ const KakaoMap = () => {
                             fillOpacity={1} // 채우기 불투명도 입니다
                         />
                 }
-                <button className="location_btn" onClick={handleLocation}>위치</button>
+                <button className="location_btn" onClick={handleLocation} onTouchEnd={handleTouchLocation}>위치</button>
             </Map>
         </div>
     )

@@ -10,6 +10,7 @@
 		Nanum Barun Gothic, Nanum Gothic, '돋움', Dotum, Verdana, Arial, sans-serif;
 	letter-spacing: -0.5px;
 	overscroll-behavior: none;
+	pointer-events: auto;
 	&:not(.notification_list)::-webkit-scrollbar {
 		display: none;
 	}
